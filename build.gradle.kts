@@ -26,6 +26,10 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+
+    implementation("org.springframework.boot:spring-boot-starter-log4j2")
+    implementation("org.apache.logging.log4j:log4j-api-kotlin:1.0.0")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("org.testcontainers:junit-jupiter")
@@ -35,6 +39,12 @@ dependencies {
 dependencyManagement {
     imports {
         mavenBom("org.testcontainers:testcontainers-bom:${property("testcontainersVersion")}")
+    }
+}
+
+configurations {
+    all {
+        exclude(group = "org.springframework.boot", module = "spring-boot-starter-logging")
     }
 }
 
