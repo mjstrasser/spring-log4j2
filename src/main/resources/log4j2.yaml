@@ -1,0 +1,15 @@
+Configutation:
+  status: warn
+
+  Appenders:
+    Console:
+      name: CONSOLE
+      target: SYSTEM_OUT
+      PatternLayout:
+        Pattern: "%d{yyyy-MM-dd HH:mm:ss.nnnnnn} %5p ${hostName} --- [%15.15t] %-40.40c{1.} : %m%n%ex"
+
+  Loggers:
+    Root:
+      level: info
+      AppenderRef:
+        - ref: CONSOLE
