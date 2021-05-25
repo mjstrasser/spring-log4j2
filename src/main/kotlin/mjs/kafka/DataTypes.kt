@@ -36,3 +36,10 @@ data class Wrapper(
     val data: TableData,
     val header: Header
 )
+
+@Serializable
+data class OrgCustomer(
+    var id: String? = null,
+    var acn: String? = null,
+    var name: String? = null
+) : TableData()
