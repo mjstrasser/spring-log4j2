@@ -2,12 +2,7 @@ package mjs.kafka
 
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.kstream.KTable
-import org.apache.kafka.streams.kstream.Materialized
-import org.apache.kafka.streams.kstream.TimeWindows
-import org.apache.kafka.streams.kstream.Windowed
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.context.annotation.Configuration
-import java.time.Duration
 import javax.annotation.PostConstruct
 
 //@Configuration
@@ -20,9 +15,8 @@ class Streams(
     lateinit var inputStream: String
 
     @PostConstruct
-    fun groupTransactionEvents(): KTable<Windowed<String>, OrgCustomer> = builder.stream<String, Wrapper>(inputStream)
+    fun groupTransactionEvents(): KTable<String, OrgCustomer> = builder.stream<String, Wrapper>(inputStream)
         .groupByKey()
-        .windowedBy(TimeWindows.of(Duration.ofMinutes(60L)))
         .aggregate(
             { OrgCustomer() },
             { _, value, customer ->
