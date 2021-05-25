@@ -16,7 +16,11 @@ repositories {
     mavenCentral()
 }
 
-extra["testcontainersVersion"] = "1.15.2"
+val kotlinSerialisationJsonVersion: String by project
+val log4jKotlinVersion: String by project
+val lmaxDisruptorVersion: String by project
+val kotestVersion: String by project
+val testcontainersVersion: String by project
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
@@ -28,21 +32,25 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinSerialisationJsonVersion")
 
     implementation("org.springframework.boot:spring-boot-starter-log4j2")
-    implementation("org.apache.logging.log4j:log4j-api-kotlin:1.0.0")
-    implementation("com.lmax:disruptor:3.4.4")
+    implementation("org.apache.logging.log4j:log4j-api-kotlin:$log4jKotlinVersion")
+    implementation("com.lmax:disruptor:$lmaxDisruptorVersion")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:kafka")
+    testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
+    testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
+    testImplementation("io.kotest:kotest-property:$kotestVersion")
+
 }
 
 dependencyManagement {
     imports {
-        mavenBom("org.testcontainers:testcontainers-bom:${property("testcontainersVersion")}")
+        mavenBom("org.testcontainers:testcontainers-bom:$testcontainersVersion")
     }
 }
 
