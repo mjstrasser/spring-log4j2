@@ -32,14 +32,14 @@ data class Header(
 )
 
 @Serializable
-data class Wrapper(
+data class Message(
+    val header: Header,
     val data: TableData,
-    val header: Header
 )
 
 @Serializable
 data class OrgCustomer(
     var id: String? = null,
     var acn: String? = null,
-    var name: String? = null
+    var name: String? = null,
 ) : TableData()
