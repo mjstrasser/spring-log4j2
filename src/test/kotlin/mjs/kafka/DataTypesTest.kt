@@ -8,18 +8,33 @@ import kotlinx.serialization.json.Json
 
 class DataTypesTest : DescribeSpec({
 
+    val transId = randomTxnId()
+    val crn = randomCrn()
+    val message = Message(
+        header = Header(transactionId = transId, transactionEventCounter = 1, transactionLastEvent = true),
+        data = Customer(id = crn, customerType = "O"),
+    )
+    val messageJson =
+        """{"header":{"transactionId":"$transId","transactionEventCounter":1,"transactionLastEvent":true},"data":{"type":"mjs.kafka.Customer","id":"$crn","customerType":"O"}}"""
+
     describe("Wrapped customer message") {
-        val message = Message(
-            header = Header(transactionId = "123123123", transactionEventCounter = 1),
-            data = Customer(id = "123456789", customerType = "O"),
-        )
-        val json =
-            """{"header":{"transactionId":"123123123","transactionEventCounter":1},"data":{"type":"mjs.kafka.Customer","id":"123456789","customerType":"O"}}"""
         it("serialises correctly") {
-            Json.encodeToString(message) shouldBe json
+            Json.encodeToString(message) shouldBe messageJson
         }
         it("deserialises correctly") {
-            Json.decodeFromString<Message>(json) shouldBe message
+            Json.decodeFromString<Message>(messageJson) shouldBe message
+        }
+    }
+
+    describe("Transaction") {
+        val trans = Transaction(transId, setOf(message), 1)
+        val transJson =
+            """{"id":"$transId","messages":[$messageJson],"partCount":1}"""
+        it("is serialised as expected") {
+            Json.encodeToString(trans) shouldBe transJson
+        }
+        it("is deserialised as expected") {
+            Json.decodeFromString<Transaction>(transJson) shouldBe trans
         }
     }
 

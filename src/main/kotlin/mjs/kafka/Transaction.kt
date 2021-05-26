@@ -1,10 +1,12 @@
 package mjs.kafka
 
+import kotlinx.serialization.Serializable
 import org.apache.logging.log4j.kotlin.Logging
 import kotlin.math.max
 
-class Transaction(
-    private val id: String? = null,
+@Serializable
+data class Transaction(
+    val id: String? = null,
     val messages: Set<Message> = setOf(),
     private val partCount: Int = -1,
 ) : Logging {
