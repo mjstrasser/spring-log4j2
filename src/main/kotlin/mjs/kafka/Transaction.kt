@@ -9,7 +9,8 @@ class Transaction {
     val isComplete: Boolean
         get() = messages.size == partCount
 
-    fun addMessage(message: Message) {
+    fun addMessage(message: Message): Transaction {
+
         if (id == NONE)
             id = message.header.transactionId
         else if (id != message.header.transactionId)
@@ -20,5 +21,7 @@ class Transaction {
         if (message.header.lastInTransaction) {
             partCount = message.header.transactionEventCounter
         }
+
+        return this
     }
 }
