@@ -8,12 +8,14 @@ import kotlin.math.max
 data class Transaction(
     val id: String? = null,
     val messages: Set<Message> = setOf(),
-    private val partCount: Int = -1,
+    private val eventCount: Int = -1,
 ) : Logging {
     val isComplete: Boolean
-        get() = messages.size == partCount
+        get() = messages.size == eventCount
 
     fun addMessage(message: Message): Transaction {
+
+        logger.debug { "++ Transaction.addMessage($message)" }
 
         if (id != null && id != message.header.transactionId)
             throw IllegalStateException("Attempted to add message with transaction ID ${message.header.transactionId} to transaction $id")
@@ -24,7 +26,7 @@ data class Transaction(
             if (message.header.transactionLastEvent)
                 message.header.transactionEventCounter
             else
-                max(partCount, -1)
+                max(eventCount, -1)
         )
     }
 }
