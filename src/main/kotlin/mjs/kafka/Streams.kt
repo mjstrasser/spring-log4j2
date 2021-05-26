@@ -1,25 +1,41 @@
 package mjs.kafka
 
+import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsBuilder
-import org.apache.kafka.streams.kstream.KTable
+import org.apache.kafka.streams.kstream.Consumed
+import org.apache.kafka.streams.kstream.Grouped
+import org.apache.kafka.streams.kstream.Materialized
+import org.apache.kafka.streams.kstream.Produced
+import org.apache.logging.log4j.kotlin.Logging
 import org.springframework.beans.factory.annotation.Value
-import javax.annotation.PostConstruct
 
 //@Configuration
 //@Enable
 class Streams(
-    val builder: StreamsBuilder
-) {
+    private val builder: StreamsBuilder
+) : Logging {
 
-    @Value("\${inputStream}")
-    lateinit var inputStream: String
+    @Value("\${inputTopic}")
+    lateinit var inputTopic: String
 
-    @PostConstruct
-    fun groupTransactionEvents(): KTable<String, Transaction> = builder.stream<String, Message>(inputStream)
-        .groupBy { _, message -> message.header.transactionId }
-        .aggregate(
-            { Transaction() },
-            { _, message, trans -> trans.addMessage(message) },
-        )
+    @Value("\${outputTopic}")
+    lateinit var outputTopic: String
+
+    //    @PostConstruct
+    fun groupTransactionEvents() =
+        builder.stream(inputTopic, Consumed.with(Serdes.String(), serdeFor<Message>()))
+            .peek { k, v -> logger.info("Consumed $k: $v") }
+            .groupBy(
+                { _, message -> message.header.transactionId },
+                Grouped.with(Serdes.String(), serdeFor<Message>()),
+            )
+            .aggregate(
+                { Transaction() },
+                { _, message, trans -> trans.addMessage(message) },
+                Materialized.with(Serdes.String(), serdeFor<Transaction>())
+            )
+            .toStream()
+            .peek { k, v -> logger.info("Producing $k: $v") }
+            .to(outputTopic, Produced.with(Serdes.String(), serdeFor<Transaction>()))
 
 }

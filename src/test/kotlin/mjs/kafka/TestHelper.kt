@@ -3,6 +3,7 @@ package mjs.kafka
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.datatest.withData
 import io.kotest.matchers.shouldBe
+import java.util.UUID
 import kotlin.random.Random
 
 /**
@@ -47,3 +48,9 @@ class AcnFromBaseTest : FunSpec({
         }
     }
 })
+
+fun randomKey() = UUID.randomUUID().toString()
+
+fun randomCrn() = Random.nextInt(1_000_000_000).toString()
+
+fun randomTxnId() = UUID.randomUUID().toString()
