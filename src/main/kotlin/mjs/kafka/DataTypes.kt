@@ -28,7 +28,7 @@ data class OrganisationName(
 data class Header(
     val transactionId: String,
     val transactionEventCounter: Int,
-    val lastInTransaction: Boolean = false,
+    val transactionLastEvent: Boolean = false,
 )
 
 @Serializable

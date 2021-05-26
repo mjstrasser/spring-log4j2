@@ -16,7 +16,7 @@ class Streams(
 
     @PostConstruct
     fun groupTransactionEvents(): KTable<String, Transaction> = builder.stream<String, Message>(inputStream)
-        .groupBy { _, value -> value.header.transactionId }
+        .groupBy { _, message -> message.header.transactionId }
         .aggregate(
             { Transaction() },
             { _, message, trans -> trans.addMessage(message) },

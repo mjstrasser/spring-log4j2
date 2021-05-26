@@ -1,24 +1,28 @@
 package mjs.kafka
 
-const val NONE = "NONE"
+import org.apache.logging.log4j.kotlin.Logging
+import kotlin.math.max
 
 class Transaction(
-    private val id: String = NONE,
+    private val id: String? = null,
     val messages: Set<Message> = setOf(),
     private val partCount: Int = -1,
-) {
+) : Logging {
     val isComplete: Boolean
         get() = messages.size == partCount
 
     fun addMessage(message: Message): Transaction {
 
-        if (id != NONE && id != message.header.transactionId)
+        if (id != null && id != message.header.transactionId)
             throw IllegalStateException("Attempted to add message with transaction ID ${message.header.transactionId} to transaction $id")
 
         return Transaction(
-            id = message.header.transactionId,
-            messages = messages + message,
-            partCount = if (message.header.lastInTransaction) message.header.transactionEventCounter else -1
+            message.header.transactionId,
+            messages + message,
+            if (message.header.transactionLastEvent)
+                message.header.transactionEventCounter
+            else
+                max(partCount, -1)
         )
     }
 }
