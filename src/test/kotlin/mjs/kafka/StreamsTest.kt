@@ -4,8 +4,10 @@ import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import org.apache.kafka.common.serialization.Serdes
+import org.apache.kafka.streams.KeyValue
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.TopologyTestDriver
+import org.apache.logging.log4j.kotlin.logger
 import java.util.Properties
 
 class StreamsTest : DescribeSpec({
@@ -19,7 +21,7 @@ class StreamsTest : DescribeSpec({
             streams.groupTransactionEvents()
 
             val topology = builder.build()
-//            logger().info(topology.describe())
+            logger().info(topology.describe())
             val driver = TopologyTestDriver(topology, Properties())
             val messagesTopic = driver.createInputTopic(
                 "events",
@@ -33,13 +35,25 @@ class StreamsTest : DescribeSpec({
             )
 
             val transactionId = randomTxnId()
-            val message = Message(Header(transactionId, 1, true), Customer(randomCrn(), "O"))
+            val crn = randomCrn()
+            val message1 = Message(Header(transactionId, 1, false), Customer(crn, "O"))
+            val message2 = Message(Header(transactionId, 2, false), Organisation(crn, randomAcn()))
+            val message3 = Message(Header(transactionId, 3, true), OrganisationName(crn, "2021-05-26", "Rider P/L"))
 
-            val key = randomKey()
-            messagesTopic.pipeInput(key, message)
+            messagesTopic.pipeKeyValueList(
+                listOf(
+                    KeyValue(randomKey(), message1),
+                    KeyValue(randomKey(), message2),
+                    KeyValue(randomKey(), message3),
+                )
+            )
+
             with(transactionsTopic.readValue()) {
+                logger().info { "Read value: $this" }
                 id shouldBe transactionId
-                messages shouldContain message
+                messages shouldContain message1
+                messages shouldContain message2
+                messages shouldContain message3
                 isComplete shouldBe true
             }
         }

@@ -23,8 +23,11 @@ class Streams(
 
     //    @PostConstruct
     fun groupTransactionEvents() =
-        builder.stream(inputTopic, Consumed.with(Serdes.String(), serdeFor<Message>()))
-            .peek { k, v -> logger.info("Consumed $k: $v") }
+        builder.stream(
+            inputTopic,
+            Consumed.with(Serdes.String(), serdeFor<Message>())
+        )
+            .peek { k, v -> logger.debug { "<< Consumed $k: $v" } }
             .groupBy(
                 { _, message -> message.header.transactionId },
                 Grouped.with(Serdes.String(), serdeFor<Message>()),
@@ -35,7 +38,10 @@ class Streams(
                 Materialized.with(Serdes.String(), serdeFor<Transaction>())
             )
             .toStream()
-            .peek { k, v -> logger.info("Producing $k: $v") }
-            .to(outputTopic, Produced.with(Serdes.String(), serdeFor<Transaction>()))
+            .peek { k, v -> logger.debug { ">> Producing $k: $v" } }
+            .to(
+                outputTopic,
+                Produced.with(Serdes.String(), serdeFor<Transaction>())
+            )
 
 }

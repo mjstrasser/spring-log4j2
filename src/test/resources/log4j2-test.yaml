@@ -10,6 +10,12 @@ Configutation:
         pattern: "%d{HH:mm:ss.nnnnnn} %highlight{%5p} %-20.20c{1.} : %m%n%ex"
 
   Loggers:
+    logger:
+      - name: mjs.kafka
+        level: debug
+        additivity: false
+        AppenderRef:
+          - ref: CONSOLE
     Root:
       level: info
       AppenderRef:

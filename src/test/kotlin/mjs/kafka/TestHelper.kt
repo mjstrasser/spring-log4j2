@@ -5,6 +5,7 @@ import io.kotest.datatest.withData
 import io.kotest.matchers.shouldBe
 import java.util.UUID
 import kotlin.random.Random
+import kotlin.random.nextUInt
 
 /**
  * Generate a random, valid Australian Company Number.
@@ -49,8 +50,8 @@ class AcnFromBaseTest : FunSpec({
     }
 })
 
-fun randomKey() = UUID.randomUUID().toString()
+fun randomKey() = Random.nextUInt().toString(16)
 
 fun randomCrn() = Random.nextInt(1_000_000_000).toString()
 
-fun randomTxnId() = UUID.randomUUID().toString()
+fun randomTxnId() = randomKey() // UUID.randomUUID().toString()
