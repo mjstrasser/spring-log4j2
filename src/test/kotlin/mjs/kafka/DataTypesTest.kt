@@ -29,7 +29,7 @@ class DataTypesTest : DescribeSpec({
     describe("Transaction") {
         val trans = Transaction(transId, setOf(message), 1)
         val transJson =
-            """{"id":"$transId","messages":[$messageJson],"partCount":1}"""
+            """{"id":"$transId","messages":[$messageJson],"eventCount":1}"""
         it("is serialised as expected") {
             Json.encodeToString(trans) shouldBe transJson
         }
