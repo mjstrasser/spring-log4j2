@@ -10,19 +10,47 @@ import org.apache.kafka.streams.TopologyTestDriver
 import org.apache.logging.log4j.kotlin.logger
 import java.util.Properties
 
-class StreamsTest : DescribeSpec({
+class AggregateMessagesTest : DescribeSpec({
 
-    describe("Group transaction events") {
-        it("groups a single event") {
+    describe("Aggregate messages into transactions") {
+        it("groups a transaction with a single (complete) event") {
             val builder = StreamsBuilder()
-            val streams = Streams(builder)
-            streams.inputTopic = "events"
-            streams.outputTopic = "transactions"
-            streams.groupTransactionEvents()
 
-            val topology = builder.build()
-            logger().info(topology.describe())
-            val driver = TopologyTestDriver(topology, Properties())
+            AggregateMessages(builder, "events", "transactions")
+                .aggregateIntoTransactions()
+
+            val driver = testDriver(builder)
+            val messagesTopic = driver.createInputTopic(
+                "events",
+                Serdes.String().serializer(),
+                serializerFor<Message>(),
+            )
+            val transactionsTopic = driver.createOutputTopic(
+                "transactions",
+                Serdes.String().deserializer(),
+                deserializerFor<Transaction>(),
+            )
+
+            val transactionId = randomTxnId()
+            val crn = randomCrn()
+            val message = Message(Header(transactionId, 1, true), Customer(crn, "O"))
+
+            messagesTopic.pipeInput(message)
+
+            with(transactionsTopic.readValue()) {
+                logger().info { "Read value: $this" }
+                id shouldBe transactionId
+                messages shouldContain message
+                isComplete shouldBe true
+            }
+        }
+        it("groups a transaction with multiple events in any order") {
+            val builder = StreamsBuilder()
+
+            AggregateMessages(builder, "events", "transactions")
+                .aggregateIntoTransactions()
+
+            val driver = testDriver(builder)
             val messagesTopic = driver.createInputTopic(
                 "events",
                 Serdes.String().serializer(),
@@ -45,7 +73,7 @@ class StreamsTest : DescribeSpec({
                     KeyValue(randomKey(), message1),
                     KeyValue(randomKey(), message2),
                     KeyValue(randomKey(), message3),
-                )
+                ).shuffled()
             )
 
             with(transactionsTopic.readValue()) {

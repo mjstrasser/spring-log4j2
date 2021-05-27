@@ -3,7 +3,11 @@ package mjs.kafka
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.datatest.withData
 import io.kotest.matchers.shouldBe
-import java.util.UUID
+import org.apache.kafka.streams.StreamsBuilder
+import org.apache.kafka.streams.StreamsConfig
+import org.apache.kafka.streams.TopologyTestDriver
+import org.apache.logging.log4j.kotlin.logger
+import java.util.Properties
 import kotlin.random.Random
 import kotlin.random.nextUInt
 
@@ -55,3 +59,11 @@ fun randomKey() = Random.nextUInt().toString(16)
 fun randomCrn() = Random.nextInt(1_000_000_000).toString()
 
 fun randomTxnId() = randomKey() // UUID.randomUUID().toString()
+
+fun testDriver(builder: StreamsBuilder): TopologyTestDriver {
+    val topology = builder.build()
+    logger("TestDriver").info { topology.describe() }
+    return TopologyTestDriver(topology, Properties().also {
+        it[StreamsConfig.STATE_DIR_CONFIG] = "build/tmp/${randomKey()}"
+    })
+}

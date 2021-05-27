@@ -5,24 +5,21 @@ import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.kstream.Consumed
 import org.apache.kafka.streams.kstream.Grouped
 import org.apache.kafka.streams.kstream.Materialized
+import org.apache.kafka.streams.kstream.Named
 import org.apache.kafka.streams.kstream.Produced
 import org.apache.logging.log4j.kotlin.Logging
 import org.springframework.beans.factory.annotation.Value
 
 //@Configuration
 //@Enable
-class Streams(
-    private val builder: StreamsBuilder
+class AggregateMessages(
+    private val builder: StreamsBuilder,
+    @Value("\${inputTopic}") val inputTopic: String,
+    @Value("\${outputTopic}") val outputTopic: String,
 ) : Logging {
 
-    @Value("\${inputTopic}")
-    lateinit var inputTopic: String
-
-    @Value("\${outputTopic}")
-    lateinit var outputTopic: String
-
     //    @PostConstruct
-    fun groupTransactionEvents() =
+    fun aggregateIntoTransactions() {
         builder.stream(
             inputTopic,
             Consumed.with(Serdes.String(), serdeFor<Message>())
@@ -37,11 +34,13 @@ class Streams(
                 { _, message, trans -> trans.addMessage(message) },
                 Materialized.with(Serdes.String(), serdeFor<Transaction>())
             )
+            .filter { _, trans -> trans.isComplete }
             .toStream()
             .peek { k, v -> logger.debug { ">> Producing $k: $v" } }
             .to(
                 outputTopic,
                 Produced.with(Serdes.String(), serdeFor<Transaction>())
             )
+    }
 
 }

@@ -10,6 +10,7 @@ data class Transaction(
     val messages: Set<Message> = setOf(),
     private val eventCount: Int = -1,
 ) : Logging {
+
     val isComplete: Boolean
         get() = messages.size == eventCount
 
