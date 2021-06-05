@@ -3,13 +3,17 @@ Configutation:
 
   Appenders:
     Console:
-      name: CONSOLE
-      target: SYSTEM_OUT
-      PatternLayout:
-        Pattern: "%d{yyyy-MM-dd HH:mm:ss.nnnnnn} %5p ${hostName} --- [%15.15t] %-40.40c{1.} : %m%n%ex"
+      - name: CONSOLE
+        target: SYSTEM_OUT
+        PatternLayout:
+          Pattern: "%d{yyyy-MM-dd HH:mm:ss.nnnnnn} %5p ${hostName} --- [%15.15t] %-40.40c{1.} : %m%n%ex"
+      - name: CONSOLE_JSON
+        target: SYSTEM_OUT
+        JsonTemplateLayout:
+          eventTemplateUri: classpath:LoggingLayout.json
 
   Loggers:
     Root:
       level: info
       AppenderRef:
-        - ref: CONSOLE
+        - ref: CONSOLE_JSON

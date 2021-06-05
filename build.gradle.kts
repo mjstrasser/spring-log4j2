@@ -36,6 +36,7 @@ dependencies {
 
     implementation("org.springframework.boot:spring-boot-starter-log4j2")
     implementation("org.apache.logging.log4j:log4j-api-kotlin:$log4jKotlinVersion")
+    implementation("org.apache.logging.log4j:log4j-layout-template-json")
     implementation("com.lmax:disruptor:$lmaxDisruptorVersion")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")

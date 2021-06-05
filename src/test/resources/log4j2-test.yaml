@@ -3,20 +3,25 @@ Configutation:
 
   Appenders:
     Console:
-      name: CONSOLE
-      target: SYSTEM_OUT
-      PatternLayout:
-#        pattern: "%d{yyyy-MM-dd HH:mm:ss.nnnnnn} %highlight{%5p} ${hostName} --- [%15.15t] %-40.40c{1.} : %m%n%ex"
-        pattern: "%d{HH:mm:ss.nnnnnn} %highlight{%5p} %-20.20c{1.} : %m%n%ex"
+      - name: CONSOLE
+        target: SYSTEM_OUT
+        PatternLayout:
+  #        pattern: "%d{yyyy-MM-dd HH:mm:ss.nnnnnn} %highlight{%5p} ${hostName} --- [%15.15t] %-40.40c{1.} : %m%n%ex"
+          pattern: "%d{HH:mm:ss.nnnnnn} %highlight{%5p} %-20.20c{1.} : %m%n%ex"
+      - name: CONSOLE_JSON
+        target: SYSTEM_OUT
+        JsonTemplateLayout:
+          eventTemplateUri: classpath:LoggingLayout.json
+#          eventTemplateUri: classpath:EcsLayout.json
 
   Loggers:
-    logger:
+    Logger:
       - name: mjs.kafka
         level: debug
         additivity: false
         AppenderRef:
-          - ref: CONSOLE
+          - ref: CONSOLE_JSON
     Root:
       level: info
       AppenderRef:
-        - ref: CONSOLE
+        - ref: CONSOLE_JSON
